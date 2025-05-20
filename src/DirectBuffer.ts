@@ -15,9 +15,9 @@ export interface DirectBuffer {
     wrap(buffer: ArrayBuffer, offset: number, length: number): void;
     wrap(buffer: DirectBuffer): void;
     wrap(buffer: DirectBuffer, offset: number, length: number): void;
-    wrap(address: bigint, length: number): void;
+    wrap(address: number, length: number): void;
 
-    addressOffset(): bigint;
+    addressOffset(): number;
 
     byteArray(): Uint8Array | null;
     byteBuffer(): ArrayBuffer | null;

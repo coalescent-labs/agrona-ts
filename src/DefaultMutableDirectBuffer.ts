@@ -7,7 +7,7 @@ import { MutableDirectBuffer } from "./MutableDirectBuffer";
 export class DefaultMutableDirectBuffer implements MutableDirectBuffer {
     protected _buffer: Uint8Array;
     protected _capacity: number = 0;
-    protected _addressOffset: bigint = 0n;
+    protected _addressOffset: number = 0;
 
     constructor(capacity: number = 0) {
         this._capacity = capacity;
@@ -29,7 +29,7 @@ export class DefaultMutableDirectBuffer implements MutableDirectBuffer {
         return this._buffer;
     }
 
-    public addressOffset(): bigint {
+    public addressOffset(): number {
         return this._addressOffset;
     }
 
@@ -51,7 +51,7 @@ export class DefaultMutableDirectBuffer implements MutableDirectBuffer {
     wrap(buffer: ArrayBuffer, offset: number, length: number): void;
     wrap(buffer: DirectBuffer): void;
     wrap(buffer: DirectBuffer, offset: number, length: number): void;
-    wrap(address: bigint, length: number): void;
+    wrap(address: number, length: number): void;
     wrap(buffer: unknown, offset?: unknown, length?: unknown): void {
         if (offset === undefined) {
             offset = 0;
@@ -71,12 +71,12 @@ export class DefaultMutableDirectBuffer implements MutableDirectBuffer {
     public wrapArray(buffer: Uint8Array, offset: number, length: number) {
         this._buffer = buffer;
         this._capacity = length;
-        this._addressOffset = BigInt(offset);
+        this._addressOffset = offset;
     }
     wrapArray1(buffer: ArrayBuffer, offset: number, length: number) {
         this._buffer = new Uint8Array(buffer);
         this._capacity = length;
-        this._addressOffset = BigInt(offset);
+        this._addressOffset = offset;
     }
     public getBytes(
         index: number,
@@ -140,7 +140,11 @@ export class DefaultMutableDirectBuffer implements MutableDirectBuffer {
         byteOrder: ByteOrder = ByteOrder.LITTLE_ENDIAN,
     ): bigint {
         BufferUtil.boundsCheck(this._buffer, index, BitUtil.SIZE_OF_LONG);
-        return this.getLongFromBuffer(this._buffer, index, byteOrder);
+        return this.getLongFromBuffer(
+            this._buffer,
+            this._addressOffset + index,
+            byteOrder,
+        );
     }
 
     public putLong(
@@ -149,7 +153,12 @@ export class DefaultMutableDirectBuffer implements MutableDirectBuffer {
         byteOrder: ByteOrder = ByteOrder.LITTLE_ENDIAN,
     ): void {
         BufferUtil.boundsCheck(this._buffer, index, BitUtil.SIZE_OF_LONG);
-        this.putLongInBuffer(this._buffer, index, value, byteOrder);
+        this.putLongInBuffer(
+            this._buffer,
+            this._addressOffset + index,
+            value,
+            byteOrder,
+        );
     }
 
     public getInt(
@@ -157,7 +166,11 @@ export class DefaultMutableDirectBuffer implements MutableDirectBuffer {
         byteOrder: ByteOrder = ByteOrder.LITTLE_ENDIAN,
     ): number {
         BufferUtil.boundsCheck(this._buffer, index, BitUtil.SIZE_OF_INT);
-        return this.getIntFromBuffer(this._buffer, index, byteOrder);
+        return this.getIntFromBuffer(
+            this._buffer,
+            this._addressOffset + index,
+            byteOrder,
+        );
     }
 
     public putInt(
@@ -166,7 +179,12 @@ export class DefaultMutableDirectBuffer implements MutableDirectBuffer {
         byteOrder: ByteOrder = ByteOrder.LITTLE_ENDIAN,
     ): void {
         BufferUtil.boundsCheck(this._buffer, index, BitUtil.SIZE_OF_INT);
-        this.putIntInBuffer(this._buffer, index, value, byteOrder);
+        this.putIntInBuffer(
+            this._buffer,
+            this._addressOffset + index,
+            value,
+            byteOrder,
+        );
     }
 
     public getShort(
@@ -174,7 +192,11 @@ export class DefaultMutableDirectBuffer implements MutableDirectBuffer {
         byteOrder: ByteOrder = ByteOrder.LITTLE_ENDIAN,
     ): number {
         BufferUtil.boundsCheck(this._buffer, index, BitUtil.SIZE_OF_SHORT);
-        return this.getShortFromBuffer(this._buffer, index, byteOrder);
+        return this.getShortFromBuffer(
+            this._buffer,
+            this._addressOffset + index,
+            byteOrder,
+        );
     }
 
     public putShort(
@@ -183,7 +205,12 @@ export class DefaultMutableDirectBuffer implements MutableDirectBuffer {
         byteOrder: ByteOrder = ByteOrder.LITTLE_ENDIAN,
     ): void {
         BufferUtil.boundsCheck(this._buffer, index, BitUtil.SIZE_OF_SHORT);
-        this.putShortInBuffer(this._buffer, index, value, byteOrder);
+        this.putShortInBuffer(
+            this._buffer,
+            this._addressOffset + index,
+            value,
+            byteOrder,
+        );
     }
 
     public getFloat(
@@ -191,7 +218,11 @@ export class DefaultMutableDirectBuffer implements MutableDirectBuffer {
         byteOrder: ByteOrder = ByteOrder.LITTLE_ENDIAN,
     ): number {
         BufferUtil.boundsCheck(this._buffer, index, BitUtil.SIZE_OF_FLOAT);
-        return this.getFloatFromBuffer(this._buffer, index, byteOrder);
+        return this.getFloatFromBuffer(
+            this._buffer,
+            this._addressOffset + index,
+            byteOrder,
+        );
     }
 
     public putFloat(
@@ -200,7 +231,12 @@ export class DefaultMutableDirectBuffer implements MutableDirectBuffer {
         byteOrder: ByteOrder = ByteOrder.LITTLE_ENDIAN,
     ): void {
         BufferUtil.boundsCheck(this._buffer, index, BitUtil.SIZE_OF_FLOAT);
-        this.putFloatInBuffer(this._buffer, index, value, byteOrder);
+        this.putFloatInBuffer(
+            this._buffer,
+            this._addressOffset + index,
+            value,
+            byteOrder,
+        );
     }
 
     public getDouble(
@@ -208,7 +244,11 @@ export class DefaultMutableDirectBuffer implements MutableDirectBuffer {
         byteOrder: ByteOrder = ByteOrder.LITTLE_ENDIAN,
     ): number {
         BufferUtil.boundsCheck(this._buffer, index, BitUtil.SIZE_OF_DOUBLE);
-        return this.getDoubleFromBuffer(this._buffer, index, byteOrder);
+        return this.getDoubleFromBuffer(
+            this._buffer,
+            this._addressOffset + index,
+            byteOrder,
+        );
     }
 
     public putDouble(
@@ -217,22 +257,33 @@ export class DefaultMutableDirectBuffer implements MutableDirectBuffer {
         byteOrder: ByteOrder = ByteOrder.LITTLE_ENDIAN,
     ): void {
         BufferUtil.boundsCheck(this._buffer, index, BitUtil.SIZE_OF_FLOAT);
-        this.putDoubleInBuffer(this._buffer, index, BigInt(value), byteOrder);
+        this.putDoubleInBuffer(
+            this._buffer,
+            this._addressOffset + index,
+            BigInt(value),
+            byteOrder,
+        );
     }
 
     public getChar(index: number): string {
         BufferUtil.boundsCheck(this._buffer, index, BitUtil.SIZE_OF_CHAR);
-        return this.getCharFromBuffer(this._buffer, index);
+        return this.getCharFromBuffer(
+            this._buffer,
+            this._addressOffset + index,
+        );
     }
 
     public getByte(index: number): number {
         BufferUtil.boundsCheck(this._buffer, index, BitUtil.SIZE_OF_BYTE);
-        return this.getByteFromBuffer(this._buffer, index);
+        return this.getByteFromBuffer(
+            this._buffer,
+            this._addressOffset + index,
+        );
     }
 
     public putByte(index: number, value: number): void {
         BufferUtil.boundsCheck(this._buffer, index, BitUtil.SIZE_OF_BYTE);
-        this.putByteInBuffer(this._buffer, index, value);
+        this.putByteInBuffer(this._buffer, this._addressOffset + index, value);
     }
 
     public putBytes(
@@ -325,7 +376,11 @@ export class DefaultMutableDirectBuffer implements MutableDirectBuffer {
 
     public putString(index: number, value: string): void {
         BufferUtil.boundsCheck(this._buffer, index, value.length);
-        this.putStringInBuffer(this._buffer, index, value);
+        this.putStringInBuffer(
+            this._buffer,
+            this._addressOffset + index,
+            value,
+        );
     }
 
     getLongFromBuffer(
